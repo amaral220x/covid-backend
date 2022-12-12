@@ -12,6 +12,19 @@
             "password": "24624862",
             "username": "amaral",
             "database": "test"
+        },
+        {
+            "mysqlOptions": {
+                "authProtocol": "default"
+            },
+            "previewLimit": 50,
+            "server": "localhost",
+            "port": 3306,
+            "driver": "MySQL",
+            "name": "COVID",
+            "database": "covid",
+            "username": "amaral",
+            "password": "24624862"
         }
     ]
 }
