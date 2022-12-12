@@ -1,0 +1,24 @@
+{
+  "name": "covid-backend",
+  "version": "1.0.0",
+  "description": "Backend do trabalho final de covid",
+  "main": "index.js",
+  "type" : "module",
+  "scripts": {
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/amaral220x/covid-backend.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/amaral220x/covid-backend/issues"
+  },
+  "homepage": "https://github.com/amaral220x/covid-backend#readme",
+  "dependencies": {
+    "express": "^4.18.2",
+    "mysql": "^2.18.1"
+  }
+}
