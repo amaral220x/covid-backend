@@ -1,5 +1,5 @@
 import mysql from 'mysql';
-import express from 'express';
+import express, { response } from 'express';
 const app = express();
 const port = 3000;
 import connection from './connect.js';
@@ -78,17 +78,50 @@ app.get('/quantidade/bolsa-familia/regiaoadministrativa', (req,res) =>{
     });
 });
 app.get('/quantidade/bolsa-familia/regiaoadministrativa/metrica', (req,res) =>{
-    connection.query('SELECT fk_regiao_administrativa_codra, regiao_adm, SUM(bolsa_familia_sim) as total, MAX(bolsa_familia_sim) as maximo, MIN(bolsa_familia_sim) as minimo,AVG(bolsa_familia_sim) as media FROM bairro JOIN regiao_administrativa ON fk_regiao_administrativa_codra = regiao_administrativa.codra GROUP BY fk_regiao_administrativa_codra', (err, result) => {
+    var response
+    connection.query('SELECT MAX(bolsa_familia_sim) as maximo, MIN(bolsa_familia_sim) as minimo, SUM(bolsa_familia_sim) as total, AVG(bolsa_familia_sim) as media FROM (SELECT SUM(bolsa_familia_sim) as bolsa_familia_sim FROM bairro JOIN regiao_administrativa ON fk_regiao_administrativa_codra = regiao_administrativa.codra GROUP BY fk_regiao_administrativa_codra) AS a', (err, result) => {
+        if (err) throw err;
+        console.log(result);
+        response = result;
+    });
+    var query = "SELECT regiao_adm as max_regiao, SUM(bolsa_familia_sim) as quantidade FROM bairro JOIN regiao_administrativa ON fk_regiao_administrativa_codra = regiao_administrativa.codra GROUP BY fk_regiao_administrativa_codra HAVING quantidade = ( SELECT MAX(bolsa_familia_sim) as maximo FROM (SELECT SUM(bolsa_familia_sim) as bolsa_familia_sim FROM bairro JOIN regiao_administrativa ON fk_regiao_administrativa_codra = regiao_administrativa.codra GROUP BY fk_regiao_administrativa_codra) AS a)" 
+    connection.query(query,(err, result) => {
+        if (err) throw err;
+        console.log(result);
+        response = response.concat(result);
+    });
+    connection.query("SELECT regiao_adm as max_regiao, SUM(bolsa_familia_sim) as quantidade FROM bairro JOIN regiao_administrativa ON fk_regiao_administrativa_codra = regiao_administrativa.codra GROUP BY fk_regiao_administrativa_codra HAVING quantidade = ( SELECT MIN(bolsa_familia_sim) as maximo FROM (SELECT SUM(bolsa_familia_sim) as bolsa_familia_sim FROM bairro JOIN regiao_administrativa ON fk_regiao_administrativa_codra = regiao_administrativa.codra GROUP BY fk_regiao_administrativa_codra) AS a)", (err, result) => {
+        if (err) throw err;
+        console.log(result);
+        response = response.concat(result);
+        res.send(response);
+    });
+});
+app.get('/quantidade/bolsa-familia/regiaoplanejamento', (req,res) =>{
+    connection.query('SELECT fk_regiao_de_planejamento_cod_rp, rp, SUM(bolsa_familia_sim) as bolsa_familia_sim, SUM(bolsa_familia_nao) as bolsa_familia_nao  FROM bairro JOIN regiao_de_planejamento ON fk_regiao_de_planejamento_cod_rp = regiao_de_planejamento.cod_rp GROUP BY fk_regiao_de_planejamento_cod_rp', (err, result) => {
         if (err) throw err;
         console.log(result);
         res.send(result);
     });
 });
-app.get('/quantidade/bolsa-familia/regiaoplanejamento', (req,res) =>{
-    connection.query('SELECT fk_regiao_de_planejamento_cod_rp, rp, SUM(bolsa_familia_sim) as bolsa_familia_sim, SUM(bolsa_familia_nao) as bolsa_familia_nao  FROM bairro JOIN regiao_de_planejamento ON fk_regiao_de_planejamento_cod_rp = regiao_de_planejamento.cod_rp GROUP BY fk_regiao_de_planejamento_cod_rp ', (err, result) => {
+app.get('/quantidade/bolsa-familia/regiaoplanejamento/metrica', (req,res) =>{
+    var response
+    connection.query('SELECT MAX(bolsa_familia_sim) as maximo, MIN(bolsa_familia_sim) as minimo, SUM(bolsa_familia_sim) as total, AVG(bolsa_familia_sim) as media FROM (SELECT SUM(bolsa_familia_sim) as bolsa_familia_sim FROM bairro JOIN regiao_de_planejamento ON fk_regiao_de_planejamento_cod_rp = regiao_de_planejamento.cod_rp GROUP BY fk_regiao_de_planejamento_cod_rp) AS a', (err, result) => {
         if (err) throw err;
         console.log(result);
-        res.send(result);
+        response = result;
+    });
+    var query = "SELECT rp as max_regiao_planejamento, SUM(bolsa_familia_sim) as quantidade FROM bairro JOIN regiao_de_planejamento ON fk_regiao_de_planejamento_cod_rp = regiao_de_planejamento.cod_rp GROUP BY fk_regiao_de_planejamento_cod_rp HAVING quantidade = ( SELECT MAX(bolsa_familia_sim) as maximo FROM (SELECT SUM(bolsa_familia_sim) as bolsa_familia_sim FROM bairro JOIN regiao_de_planejamento ON fk_regiao_de_planejamento_cod_rp = regiao_de_planejamento.cod_rp GROUP BY fk_regiao_de_planejamento_cod_rp) AS a)" 
+    connection.query(query,(err, result) => {
+        if (err) throw err;
+        console.log(result);
+        response = response.concat(result);
+    });
+    connection.query("SELECT rp as min_regiao_planejamento, SUM(bolsa_familia_sim) as quantidade FROM bairro JOIN regiao_de_planejamento ON fk_regiao_de_planejamento_cod_rp = regiao_de_planejamento.cod_rp GROUP BY fk_regiao_de_planejamento_cod_rp HAVING quantidade = ( SELECT MIN(bolsa_familia_sim) as maximo FROM (SELECT SUM(bolsa_familia_sim) as bolsa_familia_sim FROM bairro JOIN regiao_de_planejamento ON fk_regiao_de_planejamento_cod_rp = regiao_de_planejamento.cod_rp GROUP BY fk_regiao_de_planejamento_cod_rp) AS a)", (err, result) => {
+        if (err) throw err;
+        console.log(result);
+        response = response.concat(result);
+        res.send(response);
     });
 });
 
