@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "Backend do trabalho final de covid",
   "main": "index.js",
-  "type" : "module",
+  "type": "module",
   "scripts": {
     "test": "test"
   },
@@ -18,6 +18,7 @@
   },
   "homepage": "https://github.com/amaral220x/covid-backend#readme",
   "dependencies": {
+    "cors": "^2.8.5",
     "express": "^4.18.2",
     "mysql": "^2.18.1"
   }
