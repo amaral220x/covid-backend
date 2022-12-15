@@ -1090,22 +1090,22 @@ app.get('/quantidade/covid/regiaoplanejamento/metrica', (req,res) =>{
     });
 });
 app.get('/quantidade/covid/timeline', (req,res) =>{
-    connection.query("SELECT COUNT(fk_Caso_de_COVID_ID) as quantidade, DATE_FORMAT(dt_notific,'%y-%m-%d') as data FROM resida_bairro_caso_de_covid_cep INNER JOIN caso_de_covid ON fk_Caso_de_COVID_ID = ID GROUP BY dt_notific ORDER BY dt_notific", (err, result) => {
+    connection.query("SELECT COUNT(fk_Caso_de_COVID_ID) as quantidade, DATE_FORMAT(dt_notific,'%d-%m-%y') as data FROM resida_bairro_caso_de_covid_cep INNER JOIN caso_de_covid ON fk_Caso_de_COVID_ID = ID GROUP BY dt_notific ORDER BY dt_notific", (err, result) => {
         if (err) throw err;
         console.log(result);
         res.send(result);
     });
 });
 app.get('/quantidade/covid/timeline/mortes', (req,res) =>{
-    connection.query("SELECT COUNT(fk_Caso_de_COVID_ID) as quantidade, DATE_FORMAT(dt_notific,'%y-%m-%d') as data FROM resida_bairro_caso_de_covid_cep INNER JOIN caso_de_covid ON fk_Caso_de_COVID_ID = ID WHERE fk_Evolucao_ID = 1 GROUP BY dt_notific ORDER BY dt_notific", (err, result) => {
+    connection.query("SELECT COUNT(fk_Caso_de_COVID_ID) as quantidade, DATE_FORMAT(dt_notific,'%d-%m-%y') as data FROM resida_bairro_caso_de_covid_cep INNER JOIN caso_de_covid ON fk_Caso_de_COVID_ID = ID WHERE fk_Evolucao_ID = 1 GROUP BY dt_notific ORDER BY dt_notific", (err, result) => {
         if (err) throw err;
         console.log(result);
         res.send(result);
     });
 });
-app.get('/quantidade/covid/timeline/metrica', (req,res) =>{
+app.get('/quantidade/covid/timeline/mortes/metrica', (req,res) =>{
     var response
-    connection.query("SELECT MAX(quantidade) as maximo, MIN(quantidade) as minimo, SUM(quantidade) as total, AVG(quantidade) as media FROM (SELECT COUNT(fk_Caso_de_COVID_ID) as quantidade, DATE_FORMAT(dt_notific,'%y-%m-%d') as data FROM resida_bairro_caso_de_covid_cep INNER JOIN caso_de_covid ON fk_Caso_de_COVID_ID = ID GROUP BY dt_notific ORDER BY dt_notific) AS a", (err, result) => {
+    connection.query("SELECT MAX(quantidade) as maximo, MIN(quantidade) as minimo, SUM(quantidade) as total, AVG(quantidade) as media FROM (SELECT COUNT(fk_Caso_de_COVID_ID) as quantidade, DATE_FORMAT(dt_notific,'%d-%m-%y') as data FROM resida_bairro_caso_de_covid_cep INNER JOIN caso_de_covid ON fk_Caso_de_COVID_ID = ID WHERE fk_Evolucao_ID = 1 GROUP BY dt_notific ORDER BY dt_notific) AS a", (err, result) => {
         if (err) throw err;
         console.log(result);
         var maximo = result[0].maximo;
@@ -1119,7 +1119,45 @@ app.get('/quantidade/covid/timeline/metrica', (req,res) =>{
             media: media
         }
     });
-    var query = "SELECT data as max_data, quantidade FROM (SELECT COUNT(fk_Caso_de_COVID_ID) as quantidade, DATE_FORMAT(dt_notific,'%y-%m-%d') as data FROM resida_bairro_caso_de_covid_cep INNER JOIN caso_de_covid ON fk_Caso_de_COVID_ID = ID GROUP BY dt_notific ORDER BY dt_notific) AS a HAVING quantidade = ( SELECT MAX(quantidade) as maximo FROM (SELECT COUNT(fk_Caso_de_COVID_ID) as quantidade, DATE_FORMAT(dt_notific,'%y-%m-%d') as data FROM resida_bairro_caso_de_covid_cep INNER JOIN caso_de_covid ON fk_Caso_de_COVID_ID = ID GROUP BY dt_notific ORDER BY dt_notific) AS a)"
+    var query = "SELECT data as max_data, quantidade FROM (SELECT COUNT(fk_Caso_de_COVID_ID) as quantidade, DATE_FORMAT(dt_notific,'%d-%m-%y') as data FROM resida_bairro_caso_de_covid_cep INNER JOIN caso_de_covid ON fk_Caso_de_COVID_ID = ID WHERE fk_Evolucao_ID = 1 GROUP BY dt_notific ORDER BY dt_notific) AS a HAVING quantidade = ( SELECT MAX(quantidade) as maximo FROM (SELECT COUNT(fk_Caso_de_COVID_ID) as quantidade, DATE_FORMAT(dt_notific,'%d-%m-%y') as data FROM resida_bairro_caso_de_covid_cep INNER JOIN caso_de_covid ON fk_Caso_de_COVID_ID = ID WHERE fk_Evolucao_ID = 1 GROUP BY dt_notific ORDER BY dt_notific) AS a)"
+    connection.query(query, (err, result) => {
+        if (err) throw err;
+        console.log(result);
+        var max_data = result[0].max_data
+        response = {
+            ...response,
+            max_data: max_data
+        }
+    });
+    var query = "SELECT data as min_data, quantidade FROM (SELECT COUNT(fk_Caso_de_COVID_ID) as quantidade, DATE_FORMAT(dt_notific,'%d-%m-%y') as data FROM resida_bairro_caso_de_covid_cep INNER JOIN caso_de_covid ON fk_Caso_de_COVID_ID = ID WHERE fk_Evolucao_ID = 1 GROUP BY dt_notific ORDER BY dt_notific) AS a HAVING quantidade = ( SELECT MIN(quantidade) as minimo FROM (SELECT COUNT(fk_Caso_de_COVID_ID) as quantidade, DATE_FORMAT(dt_notific,'%d-%m-%y') as data FROM resida_bairro_caso_de_covid_cep INNER JOIN caso_de_covid ON fk_Caso_de_COVID_ID = ID WHERE fk_Evolucao_ID = 1 GROUP BY dt_notific ORDER BY dt_notific) AS a)"
+    connection.query(query,(err, result) => {
+        if (err) throw err;
+        console.log(result);
+        var min_data = result[0].min_data
+        response = {
+            ...response,
+            min_data: min_data
+        }
+        res.send(response);
+    });
+});
+app.get('/quantidade/covid/timeline/metrica', (req,res) =>{
+    var response
+    connection.query("SELECT MAX(quantidade) as maximo, MIN(quantidade) as minimo, SUM(quantidade) as total, AVG(quantidade) as media FROM (SELECT COUNT(fk_Caso_de_COVID_ID) as quantidade, DATE_FORMAT(dt_notific,'%d-%m-%y') as data FROM resida_bairro_caso_de_covid_cep INNER JOIN caso_de_covid ON fk_Caso_de_COVID_ID = ID GROUP BY dt_notific ORDER BY dt_notific) AS a", (err, result) => {
+        if (err) throw err;
+        console.log(result);
+        var maximo = result[0].maximo;
+        var minimo = result[0].minimo;
+        var total = result[0].total;
+        var media = result[0].media;
+        response = {
+            maximo: maximo,
+            minimo: minimo,
+            total: total,
+            media: media
+        }
+    });
+    var query = "SELECT data as max_data, quantidade FROM (SELECT COUNT(fk_Caso_de_COVID_ID) as quantidade, DATE_FORMAT(dt_notific,'%d-%m-%y') as data FROM resida_bairro_caso_de_covid_cep INNER JOIN caso_de_covid ON fk_Caso_de_COVID_ID = ID GROUP BY dt_notific ORDER BY dt_notific) AS a HAVING quantidade = ( SELECT MAX(quantidade) as maximo FROM (SELECT COUNT(fk_Caso_de_COVID_ID) as quantidade, DATE_FORMAT(dt_notific,'%d-%m-%y') as data FROM resida_bairro_caso_de_covid_cep INNER JOIN caso_de_covid ON fk_Caso_de_COVID_ID = ID GROUP BY dt_notific ORDER BY dt_notific) AS a)"
     connection.query(query,(err,result)=> {
         if (err) throw err;
         console.log(result);
@@ -1129,7 +1167,7 @@ app.get('/quantidade/covid/timeline/metrica', (req,res) =>{
             max_data: max_data
         }
     });
-    connection.query("SELECT data as min_data, quantidade FROM (SELECT COUNT(fk_Caso_de_COVID_ID) as quantidade, DATE_FORMAT(dt_notific,'%y-%m-%d') as data FROM resida_bairro_caso_de_covid_cep INNER JOIN caso_de_covid ON fk_Caso_de_COVID_ID = ID GROUP BY dt_notific ORDER BY dt_notific) AS a HAVING quantidade = ( SELECT MIN(quantidade) as maximo FROM (SELECT COUNT(fk_Caso_de_COVID_ID) as quantidade, DATE_FORMAT(dt_notific,'%y-%m-%d') as data FROM resida_bairro_caso_de_covid_cep INNER JOIN caso_de_covid ON fk_Caso_de_COVID_ID = ID GROUP BY dt_notific ORDER BY dt_notific) AS a)", (err, result) => {
+    connection.query("SELECT data as min_data, quantidade FROM (SELECT COUNT(fk_Caso_de_COVID_ID) as quantidade, DATE_FORMAT(dt_notific,'%d-%m-%y') as data FROM resida_bairro_caso_de_covid_cep INNER JOIN caso_de_covid ON fk_Caso_de_COVID_ID = ID GROUP BY dt_notific ORDER BY dt_notific) AS a HAVING quantidade = ( SELECT MIN(quantidade) as maximo FROM (SELECT COUNT(fk_Caso_de_COVID_ID) as quantidade, DATE_FORMAT(dt_notific,'%d-%m-%y') as data FROM resida_bairro_caso_de_covid_cep INNER JOIN caso_de_covid ON fk_Caso_de_COVID_ID = ID GROUP BY dt_notific ORDER BY dt_notific) AS a)", (err, result) => {
         if (err) throw err;
         console.log(result);
         var min_data = result[0].min_data
