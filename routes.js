@@ -445,23 +445,23 @@ app.get('/quantidade/baixa-renda/bairro/metrica', (req,res) =>{
             media: media
         }
     });
-    var query = "SELECT nome as max_bairro, SUM(faixa_renda_baixa_renda) as quantidade FROM bairro GROUP BY codbairro HAVING quantidade = ( SELECT MAX(faixa_renda_baixa_renda) as maximo FROM bairro)" 
+    var query = "SELECT nome as max_regiao, SUM(faixa_renda_baixa_renda) as quantidade FROM bairro GROUP BY codbairro HAVING quantidade = ( SELECT MAX(faixa_renda_baixa_renda) as maximo FROM bairro)" 
     connection.query(query,(err, result) => {
         if (err) throw err;
         console.log(result);
-        var max_bairro = result[0].max_bairro;
+        var max_regiao = result[0].max_regiao;
         response = {
             ...response,
-            max_bairro: max_bairro
+            max_regiao: max_regiao
         }
     });
-    connection.query("SELECT nome as min_bairro, SUM(faixa_renda_baixa_renda) as quantidade FROM bairro GROUP BY codbairro HAVING quantidade = ( SELECT MIN(faixa_renda_baixa_renda) as maximo FROM bairro)", (err, result) => {
+    connection.query("SELECT nome as min_regiao, SUM(faixa_renda_baixa_renda) as quantidade FROM bairro GROUP BY codbairro HAVING quantidade = ( SELECT MIN(faixa_renda_baixa_renda) as maximo FROM bairro)", (err, result) => {
         if (err) throw err;
         console.log(result);
-        var min_bairro = result[0].min_bairro;
+        var min_regiao = result[0].min_regiao;
         response = {
             ...response,
-            min_bairro: min_bairro
+            min_regiao: min_regiao
         }
         res.send(response);
     });
@@ -578,23 +578,23 @@ app.get('/quantidade/pobreza/bairro/metrica', (req,res) =>{
             media: media
         }
     });
-    var query = "SELECT nome as max_bairro, SUM(faixa_renda_pobreza) as quantidade FROM bairro GROUP BY nome HAVING quantidade = ( SELECT MAX(faixa_renda_pobreza) as maximo FROM bairro)" 
+    var query = "SELECT nome as max_regiao, SUM(faixa_renda_pobreza) as quantidade FROM bairro GROUP BY nome HAVING quantidade = ( SELECT MAX(faixa_renda_pobreza) as maximo FROM bairro)" 
     connection.query(query,(err, result) => {
         if (err) throw err;
         console.log(result);
-        var max_bairro = result[0].max_bairro;
+        var max_regiao = result[0].max_regiao;
         response = {
             ...response,
-            max_bairro: max_bairro
+            max_regiao: max_regiao
         }
     });
-    connection.query("SELECT nome as min_bairro, SUM(faixa_renda_pobreza) as quantidade FROM bairro GROUP BY nome HAVING quantidade = ( SELECT MIN(faixa_renda_pobreza) as maximo FROM bairro)", (err, result) => {
+    connection.query("SELECT nome as min_regiao, SUM(faixa_renda_pobreza) as quantidade FROM bairro GROUP BY nome HAVING quantidade = ( SELECT MIN(faixa_renda_pobreza) as maximo FROM bairro)", (err, result) => {
         if (err) throw err;
         console.log(result);
-        var min_bairro = result[0].min_bairro;
+        var min_regiao = result[0].min_regiao;
         response = {
             ...response,
-            min_bairro: min_bairro
+            min_regiao: min_regiao
         }
         res.send(response);
     });
@@ -712,23 +712,23 @@ app.get('/quantidade/acima1-5/bairro/metrica', (req,res) =>{
             media: media
         }
     });
-    var query = "SELECT nome as max_bairro, SUM(faixa_renda_acima_1_5) as quantidade FROM bairro GROUP BY nome HAVING quantidade = ( SELECT MAX(faixa_renda_acima_1_5) as maximo FROM (SELECT SUM(faixa_renda_acima_1_5) as faixa_renda_acima_1_5 FROM bairro GROUP BY nome) AS a)"
+    var query = "SELECT nome as max_regiao, SUM(faixa_renda_acima_1_5) as quantidade FROM bairro GROUP BY nome HAVING quantidade = ( SELECT MAX(faixa_renda_acima_1_5) as maximo FROM (SELECT SUM(faixa_renda_acima_1_5) as faixa_renda_acima_1_5 FROM bairro GROUP BY nome) AS a)"
     connection.query(query,(err, result) => {
         if (err) throw err;
         console.log(result);
-        var max_bairro = result[0].max_bairro;
+        var max_regiao = result[0].max_regiao;
         response = {
             ...response,
-            max_bairro: max_bairro
+            max_regiao: max_regiao
         }
     });
-    connection.query("SELECT nome as min_bairro, SUM(faixa_renda_acima_1_5) as quantidade FROM bairro GROUP BY nome HAVING quantidade = ( SELECT MIN(faixa_renda_acima_1_5) as maximo FROM (SELECT SUM(faixa_renda_acima_1_5) as faixa_renda_acima_1_5 FROM bairro GROUP BY nome) AS a)", (err, result) => {
+    connection.query("SELECT nome as min_regiao, SUM(faixa_renda_acima_1_5) as quantidade FROM bairro GROUP BY nome HAVING quantidade = ( SELECT MIN(faixa_renda_acima_1_5) as maximo FROM (SELECT SUM(faixa_renda_acima_1_5) as faixa_renda_acima_1_5 FROM bairro GROUP BY nome) AS a)", (err, result) => {
         if (err) throw err;
         console.log(result);
-        var min_bairro = result[0].min_bairro;
+        var min_regiao = result[0].min_regiao;
         response = {
             ...response,
-            min_bairro: min_bairro
+            min_regiao: min_regiao
         }
         res.send(response);
     });
@@ -845,23 +845,23 @@ app.get('/quantidade/unidade/bairro/metrica', (req,res) =>{
             media: media
         }
     });
-    var query = "SELECT nome as max_bairro, quantidade FROM (SELECT COUNT(CNES) as quantidade, bairro.nome as nome FROM unidades_de_saude INNER JOIN bairro ON fk_Bairro_codbairro = bairro.codbairro GROUP BY nome) AS a HAVING quantidade = ( SELECT MAX(quantidade) as maximo FROM (SELECT COUNT(CNES) as quantidade, bairro.nome as nome FROM unidades_de_saude INNER JOIN bairro ON fk_Bairro_codbairro = bairro.codbairro GROUP BY nome) AS a)"
+    var query = "SELECT nome as max_regiao, quantidade FROM (SELECT COUNT(CNES) as quantidade, bairro.nome as nome FROM unidades_de_saude INNER JOIN bairro ON fk_Bairro_codbairro = bairro.codbairro GROUP BY nome) AS a HAVING quantidade = ( SELECT MAX(quantidade) as maximo FROM (SELECT COUNT(CNES) as quantidade, bairro.nome as nome FROM unidades_de_saude INNER JOIN bairro ON fk_Bairro_codbairro = bairro.codbairro GROUP BY nome) AS a)"
     connection.query(query,(err, result) => {
         if (err) throw err;
         console.log(result);
-        var max_bairro = result[0].max_bairro;
+        var max_regiao = result[0].max_regiao;
         response = {
             ...response,
-            max_bairro: max_bairro
+            max_regiao: max_regiao
         }
     });
-    connection.query("SELECT nome as min_bairro, quantidade FROM (SELECT COUNT(CNES) as quantidade, bairro.nome as nome FROM unidades_de_saude INNER JOIN bairro ON fk_Bairro_codbairro = bairro.codbairro GROUP BY nome) AS a HAVING quantidade = ( SELECT MIN(quantidade) as maximo FROM (SELECT COUNT(CNES) as quantidade, bairro.nome as nome FROM unidades_de_saude INNER JOIN bairro ON fk_Bairro_codbairro = bairro.codbairro GROUP BY nome) AS a)", (err, result) => {
+    connection.query("SELECT nome as min_regiao, quantidade FROM (SELECT COUNT(CNES) as quantidade, bairro.nome as nome FROM unidades_de_saude INNER JOIN bairro ON fk_Bairro_codbairro = bairro.codbairro GROUP BY nome) AS a HAVING quantidade = ( SELECT MIN(quantidade) as maximo FROM (SELECT COUNT(CNES) as quantidade, bairro.nome as nome FROM unidades_de_saude INNER JOIN bairro ON fk_Bairro_codbairro = bairro.codbairro GROUP BY nome) AS a)", (err, result) => {
         if (err) throw err;
         console.log(result);
-        var min_bairro = result[0].min_bairro;
+        var min_regiao = result[0].min_regiao;
         response = {
             ...response,
-            min_bairro: min_bairro
+            min_regiao: min_regiao
         }
         res.send(response);
     });
@@ -978,23 +978,23 @@ app.get('/quantidade/covid/bairro/metrica', (req,res) =>{
             media: media
         }
     });
-    var query = "SELECT bairro as max_bairro, quantidade FROM (SELECT COUNT(fk_Caso_de_COVID_ID) as quantidade, bairro.nome as bairro FROM resida_bairro_caso_de_covid_cep INNER JOIN bairro ON fk_Bairro_codbairro = codbairro GROUP BY nome) AS a HAVING quantidade = ( SELECT MAX(quantidade) as maximo FROM (SELECT COUNT(fk_Caso_de_COVID_ID) as quantidade, bairro.nome as bairro FROM resida_bairro_caso_de_covid_cep INNER JOIN bairro ON fk_Bairro_codbairro = codbairro GROUP BY nome) AS a)"
+    var query = "SELECT bairro as max_regiao, quantidade FROM (SELECT COUNT(fk_Caso_de_COVID_ID) as quantidade, bairro.nome as bairro FROM resida_bairro_caso_de_covid_cep INNER JOIN bairro ON fk_Bairro_codbairro = codbairro GROUP BY nome) AS a HAVING quantidade = ( SELECT MAX(quantidade) as maximo FROM (SELECT COUNT(fk_Caso_de_COVID_ID) as quantidade, bairro.nome as bairro FROM resida_bairro_caso_de_covid_cep INNER JOIN bairro ON fk_Bairro_codbairro = codbairro GROUP BY nome) AS a)"
     connection.query(query,(err, result) => {
         if (err) throw err;
         console.log(result);
-        var max_bairro = result[0].max_bairro;
+        var max_regiao = result[0].max_regiao;
         response = {
             ...response,
-            max_bairro: max_bairro
+            max_regiao: max_regiao
         }
     });
-    connection.query("SELECT bairro as min_bairro, quantidade FROM (SELECT COUNT(fk_Caso_de_COVID_ID) as quantidade, bairro.nome as bairro FROM resida_bairro_caso_de_covid_cep INNER JOIN bairro ON fk_Bairro_codbairro = codbairro GROUP BY nome) AS a HAVING quantidade = ( SELECT MIN(quantidade) as maximo FROM (SELECT COUNT(fk_Caso_de_COVID_ID) as quantidade, bairro.nome as bairro FROM resida_bairro_caso_de_covid_cep INNER JOIN bairro ON fk_Bairro_codbairro = codbairro GROUP BY nome) AS a)", (err, result) => {
+    connection.query("SELECT bairro as min_regiao, quantidade FROM (SELECT COUNT(fk_Caso_de_COVID_ID) as quantidade, bairro.nome as bairro FROM resida_bairro_caso_de_covid_cep INNER JOIN bairro ON fk_Bairro_codbairro = codbairro GROUP BY nome) AS a HAVING quantidade = ( SELECT MIN(quantidade) as maximo FROM (SELECT COUNT(fk_Caso_de_COVID_ID) as quantidade, bairro.nome as bairro FROM resida_bairro_caso_de_covid_cep INNER JOIN bairro ON fk_Bairro_codbairro = codbairro GROUP BY nome) AS a)", (err, result) => {
         if (err) throw err;
         console.log(result);
-        var min_bairro = result[0].min_bairro
+        var min_regiao = result[0].min_regiao
         response = {
             ...response,
-            min_bairro: min_bairro
+            min_regiao: min_regiao
         }
         res.send(response);
     });
