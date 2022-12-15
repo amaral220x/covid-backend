@@ -955,4 +955,189 @@ app.get('/quantidade/unidade/regiaoplanejamento/metrica', (req,res) =>{
     });
 });
 
+app.get('/quantidade/covid/bairro', (req,res) =>{
+    connection.query("SELECT COUNT(fk_Caso_de_COVID_ID) as quantidade, bairro.nome as bairro FROM resida_bairro_caso_de_covid_cep INNER JOIN bairro ON fk_Bairro_codbairro = codbairro GROUP BY nome", (err, result) => {
+        if (err) throw err;
+        console.log(result);
+        res.send(result);
+    });
+});
+app.get('/quantidade/covid/bairro/metrica', (req,res) =>{
+    var response
+    connection.query("SELECT MAX(quantidade) as maximo, MIN(quantidade) as minimo, SUM(quantidade) as total, AVG(quantidade) as media FROM (SELECT COUNT(fk_Caso_de_COVID_ID) as quantidade, bairro.nome as bairro FROM resida_bairro_caso_de_covid_cep INNER JOIN bairro ON fk_Bairro_codbairro = codbairro GROUP BY nome) AS a", (err, result) => {
+        if (err) throw err;
+        console.log(result);
+        var maximo = result[0].maximo;
+        var minimo = result[0].minimo;
+        var total = result[0].total;
+        var media = result[0].media;
+        response = {
+            maximo: maximo,
+            minimo: minimo,
+            total: total,
+            media: media
+        }
+    });
+    var query = "SELECT bairro as max_bairro, quantidade FROM (SELECT COUNT(fk_Caso_de_COVID_ID) as quantidade, bairro.nome as bairro FROM resida_bairro_caso_de_covid_cep INNER JOIN bairro ON fk_Bairro_codbairro = codbairro GROUP BY nome) AS a HAVING quantidade = ( SELECT MAX(quantidade) as maximo FROM (SELECT COUNT(fk_Caso_de_COVID_ID) as quantidade, bairro.nome as bairro FROM resida_bairro_caso_de_covid_cep INNER JOIN bairro ON fk_Bairro_codbairro = codbairro GROUP BY nome) AS a)"
+    connection.query(query,(err, result) => {
+        if (err) throw err;
+        console.log(result);
+        var max_bairro = result[0].max_bairro;
+        response = {
+            ...response,
+            max_bairro: max_bairro
+        }
+    });
+    connection.query("SELECT bairro as min_bairro, quantidade FROM (SELECT COUNT(fk_Caso_de_COVID_ID) as quantidade, bairro.nome as bairro FROM resida_bairro_caso_de_covid_cep INNER JOIN bairro ON fk_Bairro_codbairro = codbairro GROUP BY nome) AS a HAVING quantidade = ( SELECT MIN(quantidade) as maximo FROM (SELECT COUNT(fk_Caso_de_COVID_ID) as quantidade, bairro.nome as bairro FROM resida_bairro_caso_de_covid_cep INNER JOIN bairro ON fk_Bairro_codbairro = codbairro GROUP BY nome) AS a)", (err, result) => {
+        if (err) throw err;
+        console.log(result);
+        var min_bairro = result[0].min_bairro
+        response = {
+            ...response,
+            min_bairro: min_bairro
+        }
+        res.send(response);
+    });
+});
+
+app.get('/quantidade/covid/regiaoadministrativa', (req,res) =>{
+    connection.query("SELECT COUNT(fk_Caso_de_COVID_ID) as quantidade, regiao_adm as nome FROM resida_bairro_caso_de_covid_cep INNER JOIN bairro ON fk_Bairro_codbairro = codbairro INNER JOIN regiao_administrativa ON fk_Regiao_Administrativa_codra = codra GROUP BY regiao_adm", (err, result) => {
+        if (err) throw err;
+        console.log(result);
+        res.send(result);
+    });
+});
+app.get('/quantidade/covid/regiaoadministrativa/metrica', (req,res) =>{
+    var response
+    connection.query("SELECT MAX(quantidade) as maximo, MIN(quantidade) as minimo, SUM(quantidade) as total, AVG(quantidade) as media FROM (SELECT COUNT(fk_Caso_de_COVID_ID) as quantidade, regiao_adm as nome FROM resida_bairro_caso_de_covid_cep INNER JOIN bairro ON fk_Bairro_codbairro = codbairro INNER JOIN regiao_administrativa ON fk_Regiao_Administrativa_codra = codra GROUP BY regiao_adm) AS a", (err, result) => {
+        if (err) throw err;
+        console.log(result);
+        var maximo = result[0].maximo;
+        var minimo = result[0].minimo;
+        var total = result[0].total;
+        var media = result[0].media;
+        response = {
+            maximo: maximo,
+            minimo: minimo,
+            total: total,
+            media: media
+        }
+    });
+    var query = "SELECT nome as max_regiao, quantidade FROM (SELECT COUNT(fk_Caso_de_COVID_ID) as quantidade, regiao_adm as nome FROM resida_bairro_caso_de_covid_cep INNER JOIN bairro ON fk_Bairro_codbairro = codbairro INNER JOIN regiao_administrativa ON fk_Regiao_Administrativa_codra = codra GROUP BY regiao_adm) AS a HAVING quantidade = ( SELECT MAX(quantidade) as maximo FROM (SELECT COUNT(fk_Caso_de_COVID_ID) as quantidade, regiao_adm as nome FROM resida_bairro_caso_de_covid_cep INNER JOIN bairro ON fk_Bairro_codbairro = codbairro INNER JOIN regiao_administrativa ON fk_Regiao_Administrativa_codra = codra GROUP BY regiao_adm) AS a)"
+    connection.query(query,(err, result) => {
+        if (err) throw err;
+        console.log(result);
+        var max_regiao = result[0].max_regiao;
+        response = {
+            ...response,
+            max_regiao: max_regiao
+        }
+    });
+    connection.query("SELECT nome as min_regiao, quantidade FROM (SELECT COUNT(fk_Caso_de_COVID_ID) as quantidade, regiao_adm as nome FROM resida_bairro_caso_de_covid_cep INNER JOIN bairro ON fk_Bairro_codbairro = codbairro INNER JOIN regiao_administrativa ON fk_Regiao_Administrativa_codra = codra GROUP BY regiao_adm) AS a HAVING quantidade = ( SELECT MIN(quantidade) as maximo FROM (SELECT COUNT(fk_Caso_de_COVID_ID) as quantidade, regiao_adm as nome FROM resida_bairro_caso_de_covid_cep INNER JOIN bairro ON fk_Bairro_codbairro = codbairro INNER JOIN regiao_administrativa ON fk_Regiao_Administrativa_codra = codra GROUP BY regiao_adm) AS a)", (err, result) => {
+        if (err) throw err;
+        console.log(result);
+        var min_regiao = result[0].min_regiao
+        response = {
+            ...response,
+            min_regiao: min_regiao
+        }
+        res.send(response);
+    });
+});
+
+app.get('/quantidade/covid/regiaoplanejamento', (req,res) =>{
+    connection.query("SELECT COUNT(fk_Caso_de_COVID_ID) as quantidade, rp as nome FROM resida_bairro_caso_de_covid_cep INNER JOIN bairro ON fk_Bairro_codbairro = codbairro INNER JOIN regiao_de_planejamento ON fk_Regiao_de_Planejamento_cod_rp = cod_rp GROUP BY rp", (err, result) => {
+        if (err) throw err;
+        console.log(result);
+        res.send(result);
+    });
+});
+app.get('/quantidade/covid/regiaoplanejamento/metrica', (req,res) =>{
+    var response
+    connection.query("SELECT MAX(quantidade) as maximo, MIN(quantidade) as minimo, SUM(quantidade) as total, AVG(quantidade) as media FROM (SELECT COUNT(fk_Caso_de_COVID_ID) as quantidade, rp as nome FROM resida_bairro_caso_de_covid_cep INNER JOIN bairro ON fk_Bairro_codbairro = codbairro INNER JOIN regiao_de_planejamento ON fk_Regiao_de_Planejamento_cod_rp = cod_rp GROUP BY rp) AS a", (err, result) => {
+        if (err) throw err;
+        console.log(result);
+        var maximo = result[0].maximo;
+        var minimo = result[0].minimo;
+        var total = result[0].total;
+        var media = result[0].media;
+        response = {
+            maximo: maximo,
+            minimo: minimo,
+            total: total,
+            media: media
+        }
+    });
+    var query = "SELECT nome as max_regiao, quantidade FROM (SELECT COUNT(fk_Caso_de_COVID_ID) as quantidade, rp as nome FROM resida_bairro_caso_de_covid_cep INNER JOIN bairro ON fk_Bairro_codbairro = codbairro INNER JOIN regiao_de_planejamento ON fk_Regiao_de_Planejamento_cod_rp = cod_rp GROUP BY rp) AS a HAVING quantidade = ( SELECT MAX(quantidade) as maximo FROM (SELECT COUNT(fk_Caso_de_COVID_ID) as quantidade, rp as nome FROM resida_bairro_caso_de_covid_cep INNER JOIN bairro ON fk_Bairro_codbairro = codbairro INNER JOIN regiao_de_planejamento ON fk_Regiao_de_Planejamento_cod_rp = cod_rp GROUP BY rp) AS a)"
+    connection.query(query,(err,result)=> {
+        if (err) throw err;
+        console.log(result);
+        var max_regiao = result[0].max_regiao;
+        response = {
+            ...response,
+            max_regiao: max_regiao
+        }
+    });
+    connection.query("SELECT nome as min_regiao, quantidade FROM (SELECT COUNT(fk_Caso_de_COVID_ID) as quantidade, rp as nome FROM resida_bairro_caso_de_covid_cep INNER JOIN bairro ON fk_Bairro_codbairro = codbairro INNER JOIN regiao_de_planejamento ON fk_Regiao_de_Planejamento_cod_rp = cod_rp GROUP BY rp) AS a HAVING quantidade = ( SELECT MIN(quantidade) as maximo FROM (SELECT COUNT(fk_Caso_de_COVID_ID) as quantidade, rp as nome FROM resida_bairro_caso_de_covid_cep INNER JOIN bairro ON fk_Bairro_codbairro = codbairro INNER JOIN regiao_de_planejamento ON fk_Regiao_de_Planejamento_cod_rp = cod_rp GROUP BY rp) AS a)", (err, result) => {
+        if (err) throw err;
+        console.log(result);
+        var min_regiao = result[0].min_regiao
+        response = {
+            ...response,
+            min_regiao: min_regiao
+        }
+        res.send(response);
+    });
+});
+app.get('/quantidade/covid/timeline', (req,res) =>{
+    connection.query("SELECT COUNT(fk_Caso_de_COVID_ID) as quantidade, DATE_FORMAT(dt_notific,'%y-%m-%d') as data FROM resida_bairro_caso_de_covid_cep INNER JOIN caso_de_covid ON fk_Caso_de_COVID_ID = ID GROUP BY dt_notific ORDER BY dt_notific", (err, result) => {
+        if (err) throw err;
+        console.log(result);
+        res.send(result);
+    });
+});
+app.get('/quantidade/covid/timeline/mortes', (req,res) =>{
+    connection.query("SELECT COUNT(fk_Caso_de_COVID_ID) as quantidade, DATE_FORMAT(dt_notific,'%y-%m-%d') as data FROM resida_bairro_caso_de_covid_cep INNER JOIN caso_de_covid ON fk_Caso_de_COVID_ID = ID WHERE fk_Evolucao_ID = 1 GROUP BY dt_notific ORDER BY dt_notific", (err, result) => {
+        if (err) throw err;
+        console.log(result);
+        res.send(result);
+    });
+});
+app.get('/quantidade/covid/timeline/metrica', (req,res) =>{
+    var response
+    connection.query("SELECT MAX(quantidade) as maximo, MIN(quantidade) as minimo, SUM(quantidade) as total, AVG(quantidade) as media FROM (SELECT COUNT(fk_Caso_de_COVID_ID) as quantidade, DATE_FORMAT(dt_notific,'%y-%m-%d') as data FROM resida_bairro_caso_de_covid_cep INNER JOIN caso_de_covid ON fk_Caso_de_COVID_ID = ID GROUP BY dt_notific ORDER BY dt_notific) AS a", (err, result) => {
+        if (err) throw err;
+        console.log(result);
+        var maximo = result[0].maximo;
+        var minimo = result[0].minimo;
+        var total = result[0].total;
+        var media = result[0].media;
+        response = {
+            maximo: maximo,
+            minimo: minimo,
+            total: total,
+            media: media
+        }
+    });
+    var query = "SELECT data as max_data, quantidade FROM (SELECT COUNT(fk_Caso_de_COVID_ID) as quantidade, DATE_FORMAT(dt_notific,'%y-%m-%d') as data FROM resida_bairro_caso_de_covid_cep INNER JOIN caso_de_covid ON fk_Caso_de_COVID_ID = ID GROUP BY dt_notific ORDER BY dt_notific) AS a HAVING quantidade = ( SELECT MAX(quantidade) as maximo FROM (SELECT COUNT(fk_Caso_de_COVID_ID) as quantidade, DATE_FORMAT(dt_notific,'%y-%m-%d') as data FROM resida_bairro_caso_de_covid_cep INNER JOIN caso_de_covid ON fk_Caso_de_COVID_ID = ID GROUP BY dt_notific ORDER BY dt_notific) AS a)"
+    connection.query(query,(err,result)=> {
+        if (err) throw err;
+        console.log(result);
+        var max_data = result[0].max_data;
+        response = {
+            ...response,
+            max_data: max_data
+        }
+    });
+    connection.query("SELECT data as min_data, quantidade FROM (SELECT COUNT(fk_Caso_de_COVID_ID) as quantidade, DATE_FORMAT(dt_notific,'%y-%m-%d') as data FROM resida_bairro_caso_de_covid_cep INNER JOIN caso_de_covid ON fk_Caso_de_COVID_ID = ID GROUP BY dt_notific ORDER BY dt_notific) AS a HAVING quantidade = ( SELECT MIN(quantidade) as maximo FROM (SELECT COUNT(fk_Caso_de_COVID_ID) as quantidade, DATE_FORMAT(dt_notific,'%y-%m-%d') as data FROM resida_bairro_caso_de_covid_cep INNER JOIN caso_de_covid ON fk_Caso_de_COVID_ID = ID GROUP BY dt_notific ORDER BY dt_notific) AS a)", (err, result) => {
+        if (err) throw err;
+        console.log(result);
+        var min_data = result[0].min_data
+        response = {
+            ...response,
+            min_data: min_data
+        }
+        res.send(response);
+    });
+});
 app.listen(3000);
