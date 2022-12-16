@@ -330,7 +330,45 @@ app.get('/quantidade/extrema-pobreza/bairro/metrica', (req,res) =>{
             ...response,
             min_regiao: min_regiao
         }
-        res.send(response);
+    });
+    var response2
+    connection.query('SELECT MAX(extrema_pobreza_sem_registro) as maximo, MIN(extrema_pobreza_sem_registro) as minimo, SUM(extrema_pobreza_sem_registro) as total, AVG(extrema_pobreza_sem_registro) as media FROM bairro', (err, result) => {
+        if (err) throw err;
+        console.log(result);
+        var maximo = result[0].maximo;
+        var minimo = result[0].minimo;
+        var total = result[0].total;
+        var media = result[0].media;
+        response2 = {
+            maximo: maximo,
+            minimo: minimo,
+            total: total,
+            media: media
+        }
+    });
+    var query = "SELECT nome as max_regiao, extrema_pobreza_sem_registro as quantidade FROM bairro HAVING quantidade = ( SELECT MAX(extrema_pobreza_sem_registro) as maximo FROM bairro)" 
+    connection.query(query,(err, result) => {
+        if (err) throw err;
+        console.log(result);
+        var max_regiao = result[0].max_regiao;
+        response2 = {
+            ...response2,
+            max_regiao: max_regiao
+        }
+    });
+    connection.query("SELECT nome as min_regiao, extrema_pobreza_sem_registro as quantidade FROM bairro HAVING quantidade = ( SELECT MIN(extrema_pobreza_sem_registro) as maximo FROM bairro)", (err, result) => {
+        if (err) throw err;
+        console.log(result);
+        var min_regiao = result[0].min_regiao;
+        response2 = {
+            ...response2,
+            min_regiao: min_regiao
+        }
+        var responseFinal = {
+            extrema_pobreza_cadastrado:response,
+            extrema_pobreza_sem_registro:response2
+        }
+        res.send(responseFinal);
     });
 });
 app.get('/quantidade/extrema-pobreza/regiaoadministrativa', (req,res) =>{
@@ -374,9 +412,48 @@ app.get('/quantidade/extrema-pobreza/regiaoadministrativa/metrica', (req,res) =>
             ...response,
             min_regiao: min_regiao
         }
-        res.send(response);
+    });
+    var response2
+    connection.query('SELECT MAX(extrema_pobreza_sem_registro) as maximo, MIN(extrema_pobreza_sem_registro) as minimo, SUM(extrema_pobreza_sem_registro) as total, AVG(extrema_pobreza_sem_registro) as media FROM (SELECT SUM(extrema_pobreza_sem_registro) as extrema_pobreza_sem_registro FROM bairro JOIN regiao_administrativa ON fk_regiao_administrativa_codra = regiao_administrativa.codra GROUP BY fk_regiao_administrativa_codra) AS a', (err, result) => {
+        if (err) throw err;
+        console.log(result);
+        var maximo = result[0].maximo;
+        var minimo = result[0].minimo;
+        var total = result[0].total;
+        var media = result[0].media;
+        response2 = {
+            maximo: maximo,
+            minimo: minimo,
+            total: total,
+            media: media
+        }
+    });
+    var query = "SELECT regiao_adm as max_regiao, SUM(extrema_pobreza_sem_registro) as quantidade FROM bairro JOIN regiao_administrativa ON fk_regiao_administrativa_codra = regiao_administrativa.codra GROUP BY fk_regiao_administrativa_codra HAVING quantidade = ( SELECT MAX(extrema_pobreza_sem_registro) as maximo FROM (SELECT SUM(extrema_pobreza_sem_registro) as extrema_pobreza_sem_registro FROM bairro JOIN regiao_administrativa ON fk_regiao_administrativa_codra = regiao_administrativa.codra GROUP BY fk_regiao_administrativa_codra) AS a)"
+    connection.query(query,(err, result) => {
+        if (err) throw err;
+        console.log(result);
+        var max_regiao = result[0].max_regiao;
+        response2 = {
+            ...response2,
+            max_regiao: max_regiao
+        }
+    });
+    connection.query("SELECT regiao_adm as min_regiao, SUM(extrema_pobreza_sem_registro) as quantidade FROM bairro JOIN regiao_administrativa ON fk_regiao_administrativa_codra = regiao_administrativa.codra GROUP BY fk_regiao_administrativa_codra HAVING quantidade = ( SELECT MIN(extrema_pobreza_sem_registro) as maximo FROM (SELECT SUM(extrema_pobreza_sem_registro) as extrema_pobreza_sem_registro FROM bairro JOIN regiao_administrativa ON fk_regiao_administrativa_codra = regiao_administrativa.codra GROUP BY fk_regiao_administrativa_codra) AS a)", (err, result) => {
+        if (err) throw err;
+        console.log(result);
+        var min_regiao = result[0].min_regiao;
+        response2 = {
+            ...response2,
+            min_regiao: min_regiao
+        }
+        var responseFinal = {
+            extrema_pobreza_cadastrado:response,
+            extrema_pobreza_sem_registro:response2
+        }
+        res.send(responseFinal);
     });
 });
+
 app.get('/quantidade/extrema-pobreza/regiaoplanejamento', (req,res) =>{
     connection.query('SELECT fk_regiao_de_planejamento_cod_rp, rp as nome, SUM(extrema_pobreza_cadastrado) as extrema_pobreza_cadastrado, SUM(extrema_pobreza_sem_registro) as extrema_pobreza_sem_registro FROM bairro JOIN regiao_de_planejamento ON fk_regiao_de_planejamento_cod_rp = regiao_de_planejamento.cod_rp GROUP BY fk_regiao_de_planejamento_cod_rp ', (err, result) => {
         if (err) throw err;
@@ -418,8 +495,47 @@ app.get('/quantidade/extrema-pobreza/regiaoplanejamento/metrica', (req,res) =>{
             ...response,
             min_regiao: min_regiao
         }
-        res.send(response);
     });
+    var response2
+    connection.query('SELECT MAX(extrema_pobreza_sem_registro) as maximo, MIN(extrema_pobreza_sem_registro) as minimo, SUM(extrema_pobreza_sem_registro) as total, AVG(extrema_pobreza_sem_registro) as media FROM (SELECT SUM(extrema_pobreza_sem_registro) as extrema_pobreza_sem_registro FROM bairro JOIN regiao_de_planejamento ON fk_regiao_de_planejamento_cod_rp = regiao_de_planejamento.cod_rp GROUP BY fk_regiao_de_planejamento_cod_rp) AS a', (err, result) => {
+        if (err) throw err;
+        console.log(result);
+        var maximo = result[0].maximo;
+        var minimo = result[0].minimo;
+        var total = result[0].total;
+        var media = result[0].media;
+        response2 = {
+            maximo: maximo,
+            minimo: minimo,
+            total: total,
+            media: media
+        }
+    });
+    var query = "SELECT rp as max_regiao, SUM(extrema_pobreza_sem_registro) as quantidade FROM bairro JOIN regiao_de_planejamento ON fk_regiao_de_planejamento_cod_rp = regiao_de_planejamento.cod_rp GROUP BY fk_regiao_de_planejamento_cod_rp HAVING quantidade = ( SELECT MAX(extrema_pobreza_sem_registro) as maximo FROM (SELECT SUM(extrema_pobreza_sem_registro) as extrema_pobreza_sem_registro FROM bairro JOIN regiao_de_planejamento ON fk_regiao_de_planejamento_cod_rp = regiao_de_planejamento.cod_rp GROUP BY fk_regiao_de_planejamento_cod_rp) AS a)"
+    connection.query(query,(err, result) => {
+        if (err) throw err;
+        console.log(result);
+        var max_regiao = result[0].max_regiao;
+        response2 = {
+            ...response2,
+            max_regiao: max_regiao
+        }
+    });
+    connection.query("SELECT rp as min_regiao, SUM(extrema_pobreza_sem_registro) as quantidade FROM bairro JOIN regiao_de_planejamento ON fk_regiao_de_planejamento_cod_rp = regiao_de_planejamento.cod_rp GROUP BY fk_regiao_de_planejamento_cod_rp HAVING quantidade = ( SELECT MIN(extrema_pobreza_sem_registro) as maximo FROM (SELECT SUM(extrema_pobreza_sem_registro) as extrema_pobreza_sem_registro FROM bairro JOIN regiao_de_planejamento ON fk_regiao_de_planejamento_cod_rp = regiao_de_planejamento.cod_rp GROUP BY fk_regiao_de_planejamento_cod_rp) AS a)", (err, result) => {
+        if (err) throw err;
+        console.log(result);
+        var min_regiao = result[0].min_regiao;
+        response2 = {
+            ...response2,
+            min_regiao: min_regiao
+        }
+        var responseFinal = {
+            extrema_pobreza_cadastrado: response,
+            extrema_pobreza_sem_registro: response2
+        }
+        res.send(responseFinal);
+    });
+
 });
 
 app.get('/quantidade/baixa-renda/bairro', (req,res) =>{
@@ -800,23 +916,23 @@ app.get('/quantidade/acima1-5/regiaoplanejamento/metrica', (req,res) =>{
             media: media
         }
     });
-    var query = "SELECT regiao_planejamento as max_regiao_planejamento, SUM(faixa_renda_acima_1_5) as quantidade FROM bairro JOIN regiao_planejamento ON fk_regiao_planejamento_codrp = regiao_planejamento.codrp GROUP BY fk_regiao_planejamento_codrp HAVING quantidade = ( SELECT MAX(faixa_renda_acima_1_5) as maximo FROM (SELECT SUM(faixa_renda_acima_1_5) as faixa_renda_acima_1_5 FROM bairro JOIN regiao_planejamento ON fk_regiao_planejamento_codrp = regiao_planejamento.codrp GROUP BY fk_regiao_planejamento_codrp) AS a)"
+    var query = "SELECT rp as max_regiao_de_planejamento, SUM(faixa_renda_acima_1_5) as quantidade FROM bairro JOIN regiao_de_planejamento ON fk_regiao_de_planejamento_cod_rp = regiao_de_planejamento.cod_rp GROUP BY fk_regiao_de_planejamento_cod_rp HAVING quantidade = ( SELECT MAX(faixa_renda_acima_1_5) as maximo FROM (SELECT SUM(faixa_renda_acima_1_5) as faixa_renda_acima_1_5 FROM bairro JOIN regiao_de_planejamento ON fk_regiao_de_planejamento_cod_rp = regiao_de_planejamento.cod_rp GROUP BY fk_regiao_de_planejamento_cod_rp) AS a)"
     connection.query(query,(err, result) => {
         if (err) throw err;
         console.log(result);
-        var max_regiao_planejamento = result[0].max_regiao_planejamento;
+        var max_regiao_de_planejamento = result[0].max_regiao_de_planejamento;
         response = {
             ...response,
-            max_regiao: max_regiao_planejamento
+            max_regiao: max_regiao_de_planejamento
         }
     });
-    connection.query("SELECT regiao_planejamento as min_regiao_planejamento, SUM(faixa_renda_acima_1_5) as quantidade FROM bairro JOIN regiao_planejamento ON fk_regiao_planejamento_codrp = regiao_planejamento.codrp GROUP BY fk_regiao_planejamento_codrp HAVING quantidade = ( SELECT MIN(faixa_renda_acima_1_5) as maximo FROM (SELECT SUM(faixa_renda_acima_1_5) as faixa_renda_acima_1_5 FROM bairro JOIN regiao_planejamento ON fk_regiao_planejamento_codrp = regiao_planejamento.codrp GROUP BY fk_regiao_planejamento_codrp) AS a)", (err, result) => {
+    connection.query("SELECT rp as min_regiao_de_planejamento, SUM(faixa_renda_acima_1_5) as quantidade FROM bairro JOIN regiao_de_planejamento ON fk_regiao_de_planejamento_cod_rp = regiao_de_planejamento.cod_rp GROUP BY fk_regiao_de_planejamento_cod_rp HAVING quantidade = ( SELECT MIN(faixa_renda_acima_1_5) as maximo FROM (SELECT SUM(faixa_renda_acima_1_5) as faixa_renda_acima_1_5 FROM bairro JOIN regiao_de_planejamento ON fk_regiao_de_planejamento_cod_rp = regiao_de_planejamento.cod_rp GROUP BY fk_regiao_de_planejamento_cod_rp) AS a)", (err, result) => {
         if (err) throw err;
         console.log(result);
-        var min_regiao_planejamento = result[0].min_regiao_planejamento;
+        var min_regiao_de_planejamento = result[0].min_regiao_de_planejamento;
         response = {
             ...response,
-            min_regiao: min_regiao_planejamento
+            min_regiao: min_regiao_de_planejamento
         }
         res.send(response);
     });
@@ -1605,4 +1721,141 @@ app.get('/quantidade/covid/timeline/filtro', (req,res) => {
     }
 
 });
+
+app.get('/quantidade/faixa-renda-extrema-pobreza/bairro', (req,res) => {
+    connection.query('SELECT nome, SUM(faixa_renda_extrema_pobreza) as faixa_renda_extrema_pobreza FROM bairro GROUP BY nome', (err, result) => {
+        if (err) throw err;
+        console.log(result);
+        res.send(result);
+    });
+});
+app.get('/quantidade/faixa-renda-extrema-pobreza/bairro/metrica', (req,res) => {
+    var response
+    connection.query('SELECT MAX(faixa_renda_extrema_pobreza) as maximo, MIN(faixa_renda_extrema_pobreza) as minimo, SUM(faixa_renda_extrema_pobreza) as total, AVG(faixa_renda_extrema_pobreza) as media_por_bairro FROM bairro', (err, result) => {
+        if (err) throw err;
+        console.log(result);
+        var maximo = result[0].maximo;
+        var minimo = result[0].minimo;
+        var total = result[0].total;
+        var media = result[0].media_por_bairro;
+        response = {
+            maximo: maximo,
+            minimo: minimo,
+            total: total,
+            media: media
+        }
+    });
+    var query = "SELECT nome as max_regiao, SUM(faixa_renda_extrema_pobreza) as quantidade FROM bairro GROUP BY nome HAVING quantidade = ( SELECT MAX(faixa_renda_extrema_pobreza) as maximo FROM (SELECT SUM(faixa_renda_extrema_pobreza) as faixa_renda_extrema_pobreza FROM bairro GROUP BY nome) AS a)"
+    connection.query(query,(err, result) => {
+        if (err) throw err;
+        console.log(result);
+        var max_regiao = result[0].max_regiao;
+        response = {
+            ...response,
+            max_regiao: max_regiao
+        }
+    });
+    connection.query("SELECT nome as min_regiao, SUM(faixa_renda_extrema_pobreza) as quantidade FROM bairro GROUP BY nome HAVING quantidade = ( SELECT MIN(faixa_renda_extrema_pobreza) as maximo FROM (SELECT SUM(faixa_renda_extrema_pobreza) as faixa_renda_extrema_pobreza FROM bairro GROUP BY nome) AS a)", (err, result) => {
+        if (err) throw err;
+        console.log(result);
+        var min_regiao = result[0].min_regiao;
+        response = {
+            ...response,
+            min_regiao: min_regiao
+        }
+        res.send(response);
+    });
+});
+app.get('/quantidade/faixa-renda-extrema-pobreza/regiaoadministrativa', (req,res) =>{
+    connection.query('SELECT regiao_adm as nome,  SUM(faixa_renda_extrema_pobreza) as faixa_renda_extrema_pobreza FROM bairro JOIN regiao_administrativa ON fk_regiao_administrativa_codra = regiao_administrativa.codra GROUP BY fk_regiao_administrativa_codra', (err, result) => {
+        if (err) throw err;
+        console.log(result);
+        res.send(result);
+    });
+});
+app.get('/quantidade/faixa-renda-extrema-pobreza/regiaoadministrativa/metrica', (req,res) =>{
+    var response
+    connection.query('SELECT MAX(faixa_renda_extrema_pobreza) as maximo, MIN(faixa_renda_extrema_pobreza) as minimo, SUM(faixa_renda_extrema_pobreza) as total, AVG(faixa_renda_extrema_pobreza) as media FROM (SELECT SUM(faixa_renda_extrema_pobreza) as faixa_renda_extrema_pobreza FROM bairro JOIN regiao_administrativa ON fk_regiao_administrativa_codra = regiao_administrativa.codra GROUP BY fk_regiao_administrativa_codra) AS a', (err, result) => {
+        if (err) throw err;
+        console.log(result);
+        var maximo = result[0].maximo;
+        var minimo = result[0].minimo;
+        var total = result[0].total;
+        var media = result[0].media;
+        response = {
+            maximo: maximo,
+            minimo: minimo,
+            total: total,
+            media: media
+        }
+    });
+    var query = "SELECT regiao_adm as max_regiao_administrativa, SUM(faixa_renda_extrema_pobreza) as quantidade FROM bairro JOIN regiao_administrativa ON fk_regiao_administrativa_codra = regiao_administrativa.codra GROUP BY fk_regiao_administrativa_codra HAVING quantidade = ( SELECT MAX(faixa_renda_extrema_pobreza) as maximo FROM (SELECT SUM(faixa_renda_extrema_pobreza) as faixa_renda_extrema_pobreza FROM bairro JOIN regiao_administrativa ON fk_regiao_administrativa_codra = regiao_administrativa.codra GROUP BY fk_regiao_administrativa_codra) AS a)"
+    connection.query(query,(err, result) => {
+        if (err) throw err;
+        console.log(result);
+        var max_regiao_administrativa = result[0].max_regiao_administrativa;
+        response = {
+            ...response,
+            max_regiao: max_regiao_administrativa
+        }
+    });
+    connection.query("SELECT regiao_adm as min_regiao_administrativa, SUM(faixa_renda_extrema_pobreza) as quantidade FROM bairro JOIN regiao_administrativa ON fk_regiao_administrativa_codra = regiao_administrativa.codra GROUP BY fk_regiao_administrativa_codra HAVING quantidade = ( SELECT MIN(faixa_renda_extrema_pobreza) as maximo FROM (SELECT SUM(faixa_renda_extrema_pobreza) as faixa_renda_extrema_pobreza FROM bairro JOIN regiao_administrativa ON fk_regiao_administrativa_codra = regiao_administrativa.codra GROUP BY fk_regiao_administrativa_codra) AS a)", (err, result) => {
+        if (err) throw err;
+        console.log(result);
+        var min_regiao_administrativa = result[0].min_regiao_administrativa;
+        response = {
+            ...response,
+            min_regiao: min_regiao_administrativa
+        }
+        res.send(response);
+    });
+});
+app.get('/quantidade/faixa-renda-extrema-pobreza/regiaoplanejamento', (req,res) =>{
+    connection.query('SELECT rp as nome, SUM(faixa_renda_extrema_pobreza) as faixa_renda_extrema_pobreza FROM bairro JOIN regiao_de_planejamento ON fk_regiao_de_planejamento_cod_rp = regiao_de_planejamento.cod_rp GROUP BY fk_regiao_de_planejamento_cod_rp', (err, result) => {
+        if (err) throw err;
+        console.log(result);
+        res.send(result);
+    });
+});
+app.get('/quantidade/faixa-renda-extrema-pobreza/regiaoplanejamento/metrica', (req,res) =>{
+    var response
+    connection.query('SELECT MAX(faixa_renda_extrema_pobreza) as maximo, MIN(faixa_renda_extrema_pobreza) as minimo, SUM(faixa_renda_extrema_pobreza) as total, AVG(faixa_renda_extrema_pobreza) as media_por_regiao FROM (SELECT SUM(faixa_renda_extrema_pobreza) as faixa_renda_extrema_pobreza FROM bairro JOIN regiao_de_planejamento ON fk_regiao_de_planejamento_cod_rp = regiao_de_planejamento.cod_rp GROUP BY fk_regiao_de_planejamento_cod_rp) AS a', (err, result) => {
+        if (err) throw err;
+        console.log(result);
+        var maximo = result[0].maximo;
+        var minimo = result[0].minimo;
+        var total = result[0].total;
+        var media = result[0].media_por_regiao;
+        response = {
+            maximo: maximo,
+            minimo: minimo,
+            total: total,
+            media: media
+
+        }
+    });
+    var query = "SELECT rp as max_regiao_planejamento, SUM(faixa_renda_extrema_pobreza) as quantidade FROM bairro JOIN regiao_de_planejamento ON fk_regiao_de_planejamento_cod_rp = regiao_de_planejamento.cod_rp GROUP BY fk_regiao_de_planejamento_cod_rp HAVING quantidade = ( SELECT MAX(faixa_renda_extrema_pobreza) as maximo FROM (SELECT SUM(faixa_renda_extrema_pobreza) as faixa_renda_extrema_pobreza FROM bairro JOIN regiao_de_planejamento ON fk_regiao_de_planejamento_cod_rp = regiao_de_planejamento.cod_rp GROUP BY fk_regiao_de_planejamento_cod_rp) AS a)" 
+    connection.query(query,(err, result) => {
+        if (err) throw err;
+        console.log(result);
+        var max_regiao_planejamento = result[0].max_regiao_planejamento;
+        response = {
+            ...response,
+            max_regiao: max_regiao_planejamento
+        }
+    });
+    connection.query("SELECT rp as min_regiao_planejamento, SUM(faixa_renda_extrema_pobreza) as quantidade FROM bairro JOIN regiao_de_planejamento ON fk_regiao_de_planejamento_cod_rp = regiao_de_planejamento.cod_rp GROUP BY fk_regiao_de_planejamento_cod_rp HAVING quantidade = ( SELECT MIN(faixa_renda_extrema_pobreza) as maximo FROM (SELECT SUM(faixa_renda_extrema_pobreza) as faixa_renda_extrema_pobreza FROM bairro JOIN regiao_de_planejamento ON fk_regiao_de_planejamento_cod_rp = regiao_de_planejamento.cod_rp GROUP BY fk_regiao_de_planejamento_cod_rp) AS a)", (err, result) => {
+        if (err) throw err;
+        console.log(result);
+        var min_regiao_planejamento = result[0].min_regiao_planejamento;
+        response = {
+            ...response,
+            min_regiao: min_regiao_planejamento
+        }
+        res.send(response);
+    });
+});
+
+
+
 app.listen(3000);
