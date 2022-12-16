@@ -1702,7 +1702,7 @@ app.get('/quantidade/covid/timeline/filtro', (req,res) => {
     fim = f[2] + "-" + f[1] + "-" + f[0];
     var evolucao = req.body.evolucao;
     if(evolucao != 0){
-        var query = "SELECT COUNT(fk_Caso_de_COVID_ID) as quantidade, DATE_FORMAT(dt_notific,'%d-%m-%y') as data FROM resida_bairro_caso_de_covid_cep INNER JOIN caso_de_covid ON fk_Caso_de_COVID_ID = ID WHERE (DATE_FORMAT(dt_notific,'%y-%m-%d') BETWEEN '" + inicio + "' AND '" + fim + "') AND fk_Evolucao_ID =" + evolucao + " GROUP BY dt_notific ORDER BY dt_notific";
+        var query = "SELECT COUNT(fk_Caso_de_COVID_ID) as quantidade, DATE_FORMAT(dt_evolucao,'%d-%m-%y') as data FROM resida_bairro_caso_de_covid_cep INNER JOIN caso_de_covid ON fk_Caso_de_COVID_ID = ID WHERE (DATE_FORMAT(dt_evolucao,'%y-%m-%d') BETWEEN '" + inicio + "' AND '" + fim + "') AND fk_Evolucao_ID =" + evolucao + " GROUP BY dt_evolucao ORDER BY dt_evolucao";
         console.log(query);
         connection.query(query, (err, result) => {
             if (err) throw err;
