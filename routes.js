@@ -1072,7 +1072,7 @@ app.get('/quantidade/unidade/regiaoplanejamento/metrica', (req,res) =>{
 });
 
 app.get('/quantidade/covid/bairro', (req,res) =>{
-    connection.query("SELECT COUNT(fk_Caso_de_COVID_ID) as quantidade, bairro.nome as bairro FROM resida_bairro_caso_de_covid_cep INNER JOIN bairro ON fk_Bairro_codbairro = codbairro GROUP BY nome", (err, result) => {
+    connection.query("SELECT COUNT(fk_Caso_de_COVID_ID) as quantidade, bairro.nome as nome FROM resida_bairro_caso_de_covid_cep INNER JOIN bairro ON fk_Bairro_codbairro = codbairro GROUP BY nome", (err, result) => {
         if (err) throw err;
         console.log(result);
         res.send(result);
@@ -1324,7 +1324,7 @@ app.get('/quantidade/covid/recuperados/bairro/metrica', (req,res) => {
         var max_data = result[0].max_data;
         response = {
             ...response,
-            max_data: max_data
+            max_regiao: max_data
         }
     });
     connection.query("SELECT nome as min_data, quantidade FROM (SELECT COUNT(fk_Caso_de_COVID_ID) as quantidade, nome FROM resida_bairro_caso_de_covid_cep INNER JOIN caso_de_covid ON fk_Caso_de_COVID_ID = ID INNER JOIN bairro ON fk_Bairro_codbairro = codbairro WHERE fk_Evolucao_ID = 2 GROUP BY nome ORDER BY quantidade DESC) AS a HAVING quantidade = ( SELECT MIN(quantidade) as maximo FROM (SELECT COUNT(fk_Caso_de_COVID_ID) as quantidade, nome FROM resida_bairro_caso_de_covid_cep INNER JOIN caso_de_covid ON fk_Caso_de_COVID_ID = ID INNER JOIN bairro ON fk_Bairro_codbairro = codbairro WHERE fk_Evolucao_ID = 2 GROUP BY nome ORDER BY quantidade DESC) AS a)", (err, result) => {
@@ -1333,7 +1333,7 @@ app.get('/quantidade/covid/recuperados/bairro/metrica', (req,res) => {
         var min_data = result[0].min_data
         response = {
             ...response,
-            min_data: min_data
+            min_regiao: min_data
         }
         res.send(response);
     });
@@ -1457,7 +1457,7 @@ app.get('/quantidade/covid/mortos/bairro/metrica', (req,res) => {
         var max_data = result[0].max_data;
         response = {
             ...response,
-            max_data: max_data
+            max_regiao: max_data
         }
     });
     connection.query("SELECT nome as min_data, quantidade FROM (SELECT COUNT(fk_Caso_de_COVID_ID) as quantidade, nome FROM resida_bairro_caso_de_covid_cep INNER JOIN caso_de_covid ON fk_Caso_de_COVID_ID = ID INNER JOIN bairro ON fk_Bairro_codbairro = codbairro WHERE fk_Evolucao_ID = 1 GROUP BY nome ORDER BY quantidade DESC) AS a HAVING quantidade = ( SELECT MIN(quantidade) as maximo FROM (SELECT COUNT(fk_Caso_de_COVID_ID) as quantidade, nome FROM resida_bairro_caso_de_covid_cep INNER JOIN caso_de_covid ON fk_Caso_de_COVID_ID = ID INNER JOIN bairro ON fk_Bairro_codbairro = codbairro WHERE fk_Evolucao_ID = 1 GROUP BY nome ORDER BY quantidade DESC) AS a)", (err, result) => {
@@ -1466,7 +1466,7 @@ app.get('/quantidade/covid/mortos/bairro/metrica', (req,res) => {
         var min_data = result[0].min_data
         response = {
             ...response,
-            min_data: min_data
+            min_regiao: min_data
         }
         res.send(response);
     });
@@ -1590,7 +1590,7 @@ app.get('/quantidade/covid/ativos/bairro/metrica', (req,res) => {
         var max_data = result[0].max_data;
         response = {
             ...response,
-            max_data: max_data
+            max_regiao: max_data
         }
     });
     connection.query("SELECT nome as min_data, quantidade FROM (SELECT COUNT(fk_Caso_de_COVID_ID) as quantidade, nome FROM resida_bairro_caso_de_covid_cep INNER JOIN caso_de_covid ON fk_Caso_de_COVID_ID = ID INNER JOIN bairro ON fk_Bairro_codbairro = codbairro WHERE fk_Evolucao_ID = 3 GROUP BY nome ORDER BY quantidade DESC) AS a HAVING quantidade = ( SELECT MIN(quantidade) as maximo FROM (SELECT COUNT(fk_Caso_de_COVID_ID) as quantidade, nome FROM resida_bairro_caso_de_covid_cep INNER JOIN caso_de_covid ON fk_Caso_de_COVID_ID = ID INNER JOIN bairro ON fk_Bairro_codbairro = codbairro WHERE fk_Evolucao_ID = 3 GROUP BY nome ORDER BY quantidade DESC) AS a)", (err, result) => {
@@ -1599,7 +1599,7 @@ app.get('/quantidade/covid/ativos/bairro/metrica', (req,res) => {
         var min_data = result[0].min_data
         response = {
             ...response,
-            min_data: min_data
+            min_regiao: min_data
         }
         res.send(response);
     });
@@ -1720,6 +1720,33 @@ app.get('/quantidade/covid/timeline/filtro', (req,res) => {
         });
     }
 
+});
+app.get('/quantidade/covid/timeline/filtro/:inicio/:fim/:evolucao', async (req,res) => {
+    var inicio = req.params.inicio;
+    var i = inicio.split("-");
+    inicio = i[2] + "-" + i[1] + "-" + i[0];
+    var fim = req.params.fim;
+    var f = fim.split("-");
+    fim = f[2] + "-" + f[1] + "-" + f[0];
+    var evolucao = req.params.evolucao;
+    if(evolucao != 0){
+        var query = "SELECT COUNT(fk_Caso_de_COVID_ID) as quantidade, DATE_FORMAT(dt_evolucao,'%d-%m-%y') as data FROM resida_bairro_caso_de_covid_cep INNER JOIN caso_de_covid ON fk_Caso_de_COVID_ID = ID WHERE (DATE_FORMAT(dt_evolucao,'%y-%m-%d') BETWEEN '" + inicio + "' AND '" + fim + "') AND fk_Evolucao_ID =" + evolucao + " AND DATE_FORMAT(dt_evolucao,'%d-%m-%y') != '1969-12-31' GROUP BY dt_evolucao ORDER BY dt_evolucao";
+        console.log(query);
+        connection.query(query, (err, result) => {
+            if (err) throw err;
+            console.log(result);
+            res.send(result);
+        });
+    }
+    else{
+        var query = "SELECT COUNT(fk_Caso_de_COVID_ID) as quantidade, DATE_FORMAT(dt_notific,'%d-%m-%y') as data FROM resida_bairro_caso_de_covid_cep INNER JOIN caso_de_covid ON fk_Caso_de_COVID_ID = ID WHERE (DATE_FORMAT(dt_notific,'%y-%m-%d') BETWEEN '" + inicio + "' AND '" + fim + "') GROUP BY dt_notific ORDER BY dt_notific";
+        console.log(query);
+        connection.query(query, (err, result) => {
+            if (err) throw err;
+            console.log(result);
+            res.send(result);
+        });
+    }
 });
 
 app.get('/quantidade/faixa-renda-extrema-pobreza/bairro', (req,res) => {
@@ -1855,7 +1882,6 @@ app.get('/quantidade/faixa-renda-extrema-pobreza/regiaoplanejamento/metrica', (r
         res.send(response);
     });
 });
-
 
 
 app.listen(3000);
