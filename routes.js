@@ -23,7 +23,7 @@ app.get('/tables', (req, res) => {
 
 //Quantidade de pessoas por bairro 
 app.get('/quantidade/faixa-renda/bairro', (req, res) => {
-    //const {bairro} = req.body;
+    //const {bairro} = req.query;
     connection.query('SELECT codbairro, nome, faixa_renda_extrema_pobreza, faixa_renda_pobreza, faixa_renda_baixa_renda, faixa_renda_acima_1_5, bolsa_familia_sim, bolsa_familia_nao, extrema_pobreza_cadastrado, extrema_pobreza_sem_registro from bairro', (err, result) => {
         if (err) throw err;
         console.log(result);
@@ -1694,13 +1694,13 @@ app.get('/quantidade/covid/ativos/regiaoplanejamento/metrica', (req,res) => {
 });
 
 app.get('/quantidade/covid/timeline/filtro', (req,res) => {
-    var inicio = req.body.inicio;
+    var inicio = req.query.inicio;
     var i = inicio.split("-");
     inicio = i[2] + "-" + i[1] + "-" + i[0];
-    var fim = req.body.fim;
+    var fim = req.query.fim;
     var f = fim.split("-");
     fim = f[2] + "-" + f[1] + "-" + f[0];
-    var evolucao = req.body.evolucao;
+    var evolucao = req.query.evolucao;
     if(evolucao != 0){
         var query = "SELECT COUNT(fk_Caso_de_COVID_ID) as quantidade, DATE_FORMAT(dt_evolucao,'%d-%m-%y') as data FROM resida_bairro_caso_de_covid_cep INNER JOIN caso_de_covid ON fk_Caso_de_COVID_ID = ID WHERE (DATE_FORMAT(dt_evolucao,'%y-%m-%d') BETWEEN '" + inicio + "' AND '" + fim + "') AND fk_Evolucao_ID =" + evolucao + " AND DATE_FORMAT(dt_evolucao,'%d-%m-%y') != '1969-12-31' GROUP BY dt_evolucao ORDER BY dt_evolucao";
         console.log(query);
