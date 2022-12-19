@@ -716,7 +716,7 @@ app.get('/quantidade/pobreza/bairro/metrica', (req,res) =>{
     });
 });
 app.get('/quantidade/pobreza/regiaoplanejamento', (req,res) =>{
-    connection.query('SELECT rp as nome, SUM(faixa_renda_pobreza) as faixa_renda_pobreza FROM bairro JOIN regiao_de_planejamento ON fk_regiao_de_planejamento_cod_rp = regiao_de_planejamento.cod_rp GROUP BY fk_regiao_de_planejamento_cod_rp', (err, result) => {
+    connection.query('SELECT rp as nome, SUM(faixa_renda_pobreza) as faixa_renda_pobreza FROM bairro FULL JOIN regiao_de_planejamento ON fk_regiao_de_planejamento_cod_rp = regiao_de_planejamento.cod_rp GROUP BY fk_regiao_de_planejamento_cod_rp', (err, result) => {
         if (err) throw err;
         console.log(result);
         res.send(result);
